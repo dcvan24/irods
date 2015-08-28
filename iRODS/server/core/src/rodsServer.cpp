@@ -974,7 +974,13 @@ initServerMain( rsComm_t *svrComm ) {
         return svrComm->sock;
     }
 
-    listen( svrComm->sock, MAX_LISTEN_QUE );
+    status = listen( svrComm->sock, MAX_LISTEN_QUE );
+    if( status < 0 ) {
+        rodsLog(
+            LOG_ERROR,
+            "failed on call to listen %d", errno );
+        return SYS_SOCK_LISTEN_ERR;
+    }
 
     rodsLog( LOG_NOTICE,
              "rodsServer Release version %s - API Version %s is up",
@@ -1008,7 +1014,8 @@ initServerMain( rsComm_t *svrComm ) {
             props.set_property<int>( irods::RE_PID_KW, re_pid );
         }
     }
-    else if ( unsigned char *shared = prepareServerSharedMemory() ) {
+    
+    if ( unsigned char *shared = prepareServerSharedMemory() ) {
         copyCache( &shared, SHMMAX, &ruleEngineConfig );
         detachSharedMemory();
     }
