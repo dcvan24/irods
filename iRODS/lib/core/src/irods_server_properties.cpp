@@ -158,7 +158,7 @@ namespace irods {
 
         buf[BUF_LEN - 1] = '\0';
         fchar = fgets( buf, BUF_LEN - 1, fptr );
-        for ( ; fchar != '\0'; ) {
+        for ( ; *fchar != '\0'; ) {
             if ( buf[0] == '#' || buf[0] == '/' ) {
                 buf[0] = '\0'; /* Comment line, ignore */
             }
