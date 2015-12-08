@@ -33,7 +33,7 @@
 /// @brief Check the general parameters passed in to most plugin functions
 template< typename DEST_TYPE >
 inline irods::error random_check_params(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -51,9 +51,14 @@ inline irods::error random_check_params(
 irods::error get_next_child_in_hier(
     const std::string&          _name,
     const std::string&          _hier,
-    irods::resource_child_map& _cmap,
-    irods::resource_ptr&       _resc ) {
+    irods::plugin_property_map& _props,
+    irods::resource_ptr&        _resc ) {
     irods::error result = SUCCESS();
+
+    irods::resource_child_map* cmap_ref;
+    _props.get< irods::resource_child_map* >(
+            irods::RESC_CHILD_MAP_PROP,
+            cmap_ref );
 
     // =-=-=-=-=-=-=-
     // create a parser and parse the string
@@ -69,11 +74,11 @@ irods::error get_next_child_in_hier(
 
             // =-=-=-=-=-=-=-
             // get the next resource from the child map
-            if ( ( result = ASSERT_ERROR( _cmap.has_entry( next ), CHILD_NOT_FOUND, "Child map missing entry: \"%s\"",
+            if ( ( result = ASSERT_ERROR( cmap_ref->has_entry( next ), CHILD_NOT_FOUND, "Child map missing entry: \"%s\"",
                                           next.c_str() ) ).ok() ) {
                 // =-=-=-=-=-=-=-
                 // assign resource
-                _resc = _cmap[ next ].second;
+                _resc = (*cmap_ref)[ next ].second;
             }
         }
     }
@@ -88,7 +93,7 @@ irods::error get_next_child_in_hier(
 irods::error get_next_child_for_open_or_write(
     const std::string&          _name,
     irods::file_object_ptr&     _file_obj,
-    irods::resource_child_map&  _cmap,
+    irods::plugin_property_map& _props,
     irods::resource_ptr&        _resc ) {
     // =-=-=-=-=-=-=-
     // set up iteration over physical objects
@@ -114,7 +119,7 @@ irods::error get_next_child_for_open_or_write(
         return get_next_child_in_hier(
                    _name,
                    itr->resc_hier(),
-                   _cmap,
+                   _props,
                    _resc );
 
     } // for itr
@@ -132,7 +137,7 @@ irods::error get_next_child_for_open_or_write(
 ///        to pass on the call
 template< typename DEST_TYPE >
 irods::error random_get_resc_for_call(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     irods::resource_ptr&            _resc ) {
     irods::error result = SUCCESS();
 
@@ -154,7 +159,7 @@ irods::error random_get_resc_for_call(
 
             // =-=-=-=-=-=-=-
             // get the next child pointer given our name and the hier string
-            err = get_next_child_in_hier( name, hier, _ctx.child_map(), _resc );
+            err = get_next_child_in_hier( name, hier, _ctx.prop_map(), _resc );
             result = ASSERT_PASS( err, "Get next child failed." );
         }
     }
@@ -168,7 +173,7 @@ irods::error random_get_resc_for_call(
 ///        select the next property in the vector to be tapped as the RR resc
 irods::error random_get_next_child_resource(
     irods::resource_child_map& _cmap,
-    std::string&                _next_child ) {
+    std::string&               _next_child ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -210,7 +215,7 @@ irods::error random_get_next_child_resource(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX create
 irods::error random_file_create(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -231,7 +236,7 @@ irods::error random_file_create(
 // =-=-=-=-=-=-=-
 // interface for POSIX Open
 irods::error random_file_open(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -252,7 +257,7 @@ irods::error random_file_open(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX Read
 irods::error random_file_read(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     void*                               _buf,
     int                                 _len ) {
     irods::error result = SUCCESS();
@@ -276,7 +281,7 @@ irods::error random_file_read(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX Write
 irods::error random_file_write(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     void*                               _buf,
     int                                 _len ) {
     irods::error result = SUCCESS();
@@ -299,7 +304,7 @@ irods::error random_file_write(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX Close
 irods::error random_file_close(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -320,7 +325,7 @@ irods::error random_file_close(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX Unlink
 irods::error random_file_unlink(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -341,7 +346,7 @@ irods::error random_file_unlink(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX Stat
 irods::error random_file_stat(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     struct stat*                     _statbuf ) {
     irods::error result = SUCCESS();
 
@@ -363,7 +368,7 @@ irods::error random_file_stat(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX lseek
 irods::error random_file_lseek(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     long long                        _offset,
     int                              _whence ) {
     irods::error result = SUCCESS();
@@ -386,7 +391,7 @@ irods::error random_file_lseek(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX mkdir
 irods::error random_file_mkdir(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -407,7 +412,7 @@ irods::error random_file_mkdir(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX rmdir
 irods::error random_file_rmdir(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -428,7 +433,7 @@ irods::error random_file_rmdir(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX opendir
 irods::error random_file_opendir(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -449,7 +454,7 @@ irods::error random_file_opendir(
 // =-=-=-=-=-=-=-
 /// @brief interface for POSIX closedir
 irods::error random_file_closedir(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -470,7 +475,7 @@ irods::error random_file_closedir(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX readdir
 irods::error random_file_readdir(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     struct rodsDirent**              _dirent_ptr ) {
     irods::error result = SUCCESS();
 
@@ -492,7 +497,7 @@ irods::error random_file_readdir(
 /// =-=-=-=-=-=-=-
 /// @brief interface for POSIX rename
 irods::error random_file_rename(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     const char*                         _new_file_name ) {
     irods::error result = SUCCESS();
 
@@ -514,7 +519,7 @@ irods::error random_file_rename(
 /// =-=-=-=-=-=-=-
 /// @brief interface to truncate a file
 irods::error random_file_truncate(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -535,7 +540,7 @@ irods::error random_file_truncate(
 /// =-=-=-=-=-=-=-
 /// @brief interface to determine free space on a device given a path
 irods::error random_file_getfs_freespace(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -558,7 +563,7 @@ irods::error random_file_getfs_freespace(
 ///        Just copy the file from filename to cacheFilename. optionalInfo info
 ///        is not used.
 irods::error random_file_stage_to_cache(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     const char*                         _cache_file_name ) {
     irods::error result = SUCCESS();
 
@@ -582,7 +587,7 @@ irods::error random_file_stage_to_cache(
 ///        Just copy the file from cacheFilename to filename. optionalInfo info
 ///        is not used.
 irods::error random_file_sync_to_arch(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     const char*                         _cache_file_name ) {
     irods::error result = SUCCESS();
 
@@ -604,7 +609,7 @@ irods::error random_file_sync_to_arch(
 /// =-=-=-=-=-=-=-
 /// @brief interface to notify of a file registration
 irods::error random_file_registered(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -625,7 +630,7 @@ irods::error random_file_registered(
 /// =-=-=-=-=-=-=-
 /// @brief interface to notify of a file unregistration
 irods::error random_file_unregistered(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -646,7 +651,7 @@ irods::error random_file_unregistered(
 /// =-=-=-=-=-=-=-
 /// @brief interface to notify of a file modification
 irods::error random_file_modified(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -667,7 +672,7 @@ irods::error random_file_modified(
 /// =-=-=-=-=-=-=-
 /// @brief interface to notify a resource of an operation
 irods::error random_file_notify(
-    irods::resource_plugin_context& _ctx,
+    irods::plugin_context& _ctx,
     const std::string*               _opr ) {
     irods::error result = SUCCESS();
 
@@ -689,13 +694,18 @@ irods::error random_file_notify(
 /// =-=-=-=-=-=-=-
 /// @brief find the next valid child resource for create operation
 irods::error get_next_valid_child_resource(
-    irods::resource_plugin_context& _ctx,
-    const std::string* _opr,
-    const std::string* _curr_host,
+    irods::plugin_context&   _ctx,
+    const std::string*       _opr,
+    const std::string*       _curr_host,
     irods::hierarchy_parser* _out_parser,
-    float* _out_vote ) {
+    float*                   _out_vote ) {
     irods::error result = SUCCESS();
     irods::error ret;
+
+    irods::resource_child_map* cmap_ref;
+    _ctx.prop_map().get< irods::resource_child_map* >(
+            irods::RESC_CHILD_MAP_PROP,
+            cmap_ref );
 
     // =-=-=-=-=-=-=-
     // flag
@@ -707,8 +717,8 @@ irods::error get_next_valid_child_resource(
 
     // =-=-=-=-=-=-=-
     // copy children from _cmap
-    irods::resource_child_map::iterator itr = _ctx.child_map().begin();
-    for ( ; itr != _ctx.child_map().end(); ++itr ) {
+    irods::resource_child_map::iterator itr = cmap_ref->begin();
+    for ( ; itr != cmap_ref->end(); ++itr ) {
         candidate_resources.push_back( itr->second.second );
     }
 
@@ -754,11 +764,11 @@ irods::error get_next_valid_child_resource(
 /// @brief used to allow the resource to determine which host
 ///        should provide the requested operation
 irods::error random_file_resolve_hierarchy(
-    irods::resource_plugin_context& _ctx,
-    const std::string*               _opr,
-    const std::string*               _curr_host,
-    irods::hierarchy_parser*        _out_parser,
-    float*                           _out_vote ) {
+    irods::plugin_context&   _ctx,
+    const std::string*       _opr,
+    const std::string*       _curr_host,
+    irods::hierarchy_parser* _out_parser,
+    float*                   _out_vote ) {
     irods::error result = SUCCESS();
 
     // =-=-=-=-=-=-=-
@@ -791,7 +801,7 @@ irods::error random_file_resolve_hierarchy(
                     // =-=-=-=-=-=-=-
                     // get the next child pointer in the hierarchy, given our name and the hier string
                     irods::resource_ptr resc;
-                    err = get_next_child_for_open_or_write( name, file_obj, _ctx.child_map(), resc );
+                    err = get_next_child_for_open_or_write( name, file_obj, _ctx.prop_map(), resc );
                     if ( err.ok() ) {
                         // =-=-=-=-=-=-=-
                         // forward the redirect call to the child for assertion of the whole operation,
@@ -834,12 +844,17 @@ irods::error random_file_resolve_hierarchy(
 // =-=-=-=-=-=-=-
 // random_file_rebalance - code which would rebalance the subtree
 irods::error random_file_rebalance(
-    irods::resource_plugin_context& _ctx ) {
+    irods::plugin_context& _ctx ) {
+    irods::resource_child_map* cmap_ref;
+    _ctx.prop_map().get< irods::resource_child_map* >(
+            irods::RESC_CHILD_MAP_PROP,
+            cmap_ref );
+
     // =-=-=-=-=-=-=-
     // forward request for rebalance to children
     irods::error result = SUCCESS();
-    irods::resource_child_map::iterator itr = _ctx.child_map().begin();
-    for ( ; itr != _ctx.child_map().end(); ++itr ) {
+    irods::resource_child_map::iterator itr = cmap_ref->begin();
+    for ( ; itr != cmap_ref->end(); ++itr ) {
         irods::error ret = itr->second.second->call( _ctx.comm(), irods::RESOURCE_OP_REBALANCE, _ctx.fco() );
         if ( !( result = ASSERT_PASS( ret, "Failed calling child operation." ) ).ok() ) {
             irods::log( PASS( result ) );
@@ -907,123 +922,123 @@ irods::resource* plugin_factory( const std::string& _inst_name,
     using namespace std;
     resc->add_operation(
         RESOURCE_OP_CREATE,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_create ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_OPEN,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_open ) );
 
     resc->add_operation<void*,int>(
         irods::RESOURCE_OP_READ,
         std::function<
-            error(irods::resource_plugin_context&,void*,int)>(
+            error(irods::plugin_context&,void*,int)>(
                 random_file_read ) );
 
     resc->add_operation<void*,int>(
         irods::RESOURCE_OP_WRITE,
-        function<error(resource_plugin_context&,void*,int)>(
+        function<error(plugin_context&,void*,int)>(
             random_file_write ) );
 
     resc->add_operation(
         RESOURCE_OP_CLOSE,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_close ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_UNLINK,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_unlink ) );
 
     resc->add_operation<struct stat*>(
         irods::RESOURCE_OP_STAT,
-        function<error(resource_plugin_context&, struct stat*)>(
+        function<error(plugin_context&, struct stat*)>(
             random_file_stat ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_MKDIR,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_mkdir ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_OPENDIR,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_opendir ) );
 
     resc->add_operation<struct rodsDirent**>(
         irods::RESOURCE_OP_READDIR,
-        function<error(resource_plugin_context&,struct rodsDirent**)>(
+        function<error(plugin_context&,struct rodsDirent**)>(
             random_file_readdir ) );
 
     resc->add_operation<const char*>(
         irods::RESOURCE_OP_RENAME,
-        function<error(resource_plugin_context&, const char*)>(
+        function<error(plugin_context&, const char*)>(
             random_file_rename ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_FREESPACE,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_getfs_freespace ) );
 
     resc->add_operation<long long, int>(
         irods::RESOURCE_OP_LSEEK,
-        function<error(resource_plugin_context&, long long, int)>(
+        function<error(plugin_context&, long long, int)>(
             random_file_lseek ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_RMDIR,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_rmdir ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_CLOSEDIR,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_closedir ) );
 
     resc->add_operation<const char*>(
         irods::RESOURCE_OP_STAGETOCACHE,
-        function<error(resource_plugin_context&, const char*)>(
+        function<error(plugin_context&, const char*)>(
             random_file_stage_to_cache ) );
 
     resc->add_operation<const char*>(
         irods::RESOURCE_OP_SYNCTOARCH,
-        function<error(resource_plugin_context&, const char*)>(
+        function<error(plugin_context&, const char*)>(
             random_file_sync_to_arch ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_REGISTERED,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_registered ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_UNREGISTERED,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_unregistered ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_MODIFIED,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_modified ) );
 
     resc->add_operation<const std::string*>(
         irods::RESOURCE_OP_NOTIFY,
-        function<error(resource_plugin_context&, const std::string*)>(
+        function<error(plugin_context&, const std::string*)>(
             random_file_notify ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_TRUNCATE,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_truncate ) );
 
     resc->add_operation<const std::string*, const std::string*, irods::hierarchy_parser*, float*>(
         irods::RESOURCE_OP_RESOLVE_RESC_HIER,
-        function<error(resource_plugin_context&,const std::string*, const std::string*, irods::hierarchy_parser*, float*)>(
+        function<error(plugin_context&,const std::string*, const std::string*, irods::hierarchy_parser*, float*)>(
             random_file_resolve_hierarchy ) );
 
     resc->add_operation(
         irods::RESOURCE_OP_REBALANCE,
-        function<error(resource_plugin_context&)>(
+        function<error(plugin_context&)>(
             random_file_rebalance ) );
 
     // =-=-=-=-=-=-=-
