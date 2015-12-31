@@ -82,7 +82,6 @@ rsDataObjUnlink( rsComm_t *rsComm, dataObjInp_t *dataObjUnlinkInp ) {
         // we resolved the redirect and have a host, set the hier str for subsequent
         // api calls, etc.
         addKeyVal( &dataObjUnlinkInp->condInput, RESC_HIER_STR_KW, hier.c_str() );
-
     } // if keyword
 
     if ( getValByKey(
@@ -431,7 +430,7 @@ l3Unlink( rsComm_t *rsComm, dataObjInfo_t *dataObjInfo ) {
     // JMC - legacy resource  if (getRescClass (dataObjInfo->rescInfo) == BUNDLE_CL) return 0;
     std::string resc_class;
     irods::error prop_err = irods::get_resource_property<std::string>(
-                                dataObjInfo->rescName,
+                                dataObjInfo->rescId,
                                 irods::RESOURCE_CLASS,
                                 resc_class );
     if ( prop_err.ok() ) {

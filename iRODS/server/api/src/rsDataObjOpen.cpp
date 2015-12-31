@@ -235,7 +235,7 @@ _rsDataObjOpen( rsComm_t *rsComm, dataObjInp_t *dataObjInp ) {
 
     std::string resc_class;
     irods::error prop_err = irods::get_resource_property<std::string>(
-                                dataObjInfoHead->rescName, "class", resc_class );
+                                dataObjInfoHead->rescId, "class", resc_class );
     if ( prop_err.ok() ) {
         if ( resc_class == "bundle" ) {
             status = stageBundledData( rsComm, &dataObjInfoHead );
@@ -550,6 +550,10 @@ createEmptyRepl( rsComm_t *rsComm, dataObjInp_t *dataObjInp,
         rodsLog( LOG_NOTICE, "createEmptyRepl :: using rescName for hier" );
         rstrcpy( myDataObjInfo->rescHier, ( *dataObjInfoHead )->rescName, MAX_NAME_LEN ); // in kw else
     }
+
+    rodsLong_t resc_id;
+    irods::error ret = resc_mgr.hier_to_leaf_id( myDataObjInfo->rescHier, resc_id );
+    myDataObjInfo->rescId = resc_id;
 
     status = getFilePathName( rsComm, myDataObjInfo, dataObjInp );
     if ( status < 0 ) {

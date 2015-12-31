@@ -597,7 +597,6 @@ _rsDataObjClose(
         }
         modDataObjMetaInp.dataObjInfo = L1desc[l1descInx].dataObjInfo;
         modDataObjMetaInp.regParam = &regParam;
-
         status = rsModDataObjMeta( rsComm, &modDataObjMetaInp );
         clearKeyVal( &regParam );
 

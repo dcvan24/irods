@@ -1039,7 +1039,7 @@ sub configureIrodsUser
                 }
         }
 
-
+    if( 0 ) {
         # Test the new vault with an iput and iget
         printStatus( "Testing resource...\n" );
         printLog( "\nTesting resource...\n" );
@@ -1101,7 +1101,7 @@ sub configureIrodsUser
 
         unlink( $tmpPutFile );
         unlink( $tmpGetFile );
-
+    }
 }
 
 
