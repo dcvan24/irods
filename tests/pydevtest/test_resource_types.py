@@ -1602,7 +1602,7 @@ class Test_Resource_Compound(ChunkyDevTest, ResourceSuite, unittest.TestCase):
     def test_ireg_as_rodsuser_in_vault(self):
         pass
 
-    @unittest.skip("TEMPORARY")
+    @unittest.skip("UNSKIP AFTER OUTVARIABLES WORK")
     def test_iget_prefer_from_archive__ticket_1660(self):
         # define core.re filepath
         corefile = lib.get_core_re_dir() + "/core.re"
@@ -2298,7 +2298,8 @@ class Test_Resource_ReplicationToTwoCompound(ChunkyDevTest, ResourceSuite, unitt
     def test_ireg_as_rodsuser_in_vault(self):
         pass
 
-    @unittest.skipIf(configuration.RUN_IN_TOPOLOGY, "Skip for Topology Testing")
+    #@unittest.skipIf(configuration.RUN_IN_TOPOLOGY, "Skip for Topology Testing")
+    @unittest.skip("UNSKIP AFTER OUTVARIABLES WORK")
     def test_iget_prefer_from_archive__ticket_1660(self):
         # define core.re filepath
         corefile = lib.get_core_re_dir() + "/core.re"
@@ -2759,7 +2760,8 @@ class Test_Resource_ReplicationToTwoCompoundResourcesWithPreferArchive(ChunkyDev
     def test_ireg_as_rodsuser_in_vault(self):
         pass
 
-    @unittest.skip("this is tested elsewhere")
+    #@unittest.skip("this is tested elsewhere")
+    @unittest.skip("UNSKIP AFTER OUTVARIABLES WORK")
     def test_iget_prefer_from_archive__ticket_1660(self):
         pass
 
