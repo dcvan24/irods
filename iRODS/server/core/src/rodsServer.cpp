@@ -65,9 +65,7 @@ boost::mutex              BadReqMutex;
 boost::thread*            ReadWorkerThread[NUM_READ_WORKER_THR];
 boost::thread*            SpawnManagerThread;
 
-#if RODS_CAT // JMC - backport 4612
 boost::thread*            PurgeLockFileThread; // JMC - backport 4612
-#endif
 
 boost::mutex              ReadReqCondMutex;
 boost::mutex              SpawnReqCondMutex;
@@ -307,7 +305,13 @@ serverMain( char *logDir ) {
                  status );
         exit( 1 );
     }
-
+    
+    std::string svc_role;
+    irods::error ret = get_catalog_service_role(svc_role);
+    if(!ret.ok()) {
+        irods::log(PASS(ret));
+        return ret.code();
+    }
 
     uint64_t return_code = 0;
     // =-=-=-=-=-=-=-
@@ -317,15 +321,14 @@ serverMain( char *logDir ) {
             irods::CFG_SERVER_CONTROL_PLANE_PORT );
 
         startProcConnReqThreads();
-#if RODS_CAT // JMC - backport 4612
-        try {
-            PurgeLockFileThread = new boost::thread( purgeLockFileWorkerTask );
+        if( irods::CFG_SERVICE_ROLE_PROVIDER == svc_role ) {
+            try {
+                PurgeLockFileThread = new boost::thread( purgeLockFileWorkerTask );
+            }
+            catch ( const boost::thread_resource_error& ) {
+                rodsLog( LOG_ERROR, "boost encountered a thread_resource_error during thread construction in serverMain." );
+            }
         }
-        catch ( const boost::thread_resource_error& ) {
-            rodsLog( LOG_ERROR, "boost encountered a thread_resource_error during thread construction in serverMain." );
-        }
-#endif /* RODS_CAT */
-
 
         fd_set sockMask;
         FD_ZERO( &sockMask );
@@ -447,14 +450,14 @@ serverMain( char *logDir ) {
 #endif
         }
 
-#if RODS_CAT // JMC - backport 4612
-        try {
-            PurgeLockFileThread->join();
+        if( irods::CFG_SERVICE_ROLE_PROVIDER == svc_role ) {
+            try {
+                PurgeLockFileThread->join();
+            }
+            catch ( const boost::thread_resource_error& ) {
+                rodsLog( LOG_ERROR, "boost encountered a thread_resource_error during join in serverMain." );
+            }
         }
-        catch ( const boost::thread_resource_error& ) {
-            rodsLog( LOG_ERROR, "boost encountered a thread_resource_error during join in serverMain." );
-        }
-#endif /* RODS_CAT */
 
         procChildren( &ConnectedAgentHead );
         stopProcConnReqThreads();
@@ -836,11 +839,18 @@ initServer( rsComm_t *svrComm ) {
     if ( status < 0 || NULL == rodsServerHost ) { // JMC cppcheck - nullptr
         return status;
     }
+        std::string svc_role;
+        irods::error ret = get_catalog_service_role(svc_role);
+        if(!ret.ok()) {
+            irods::log(PASS(ret));
+            return ret.code();
+        }
+        
 
     if ( rodsServerHost->localFlag == LOCAL_HOST ) {
-#if RODS_CAT
-        disconnectRcat();
-#endif
+        if( irods::CFG_SERVICE_ROLE_PROVIDER == svc_role ) {
+            disconnectRcat();
+        }
     }
     else {
         if ( rodsServerHost->conn != NULL ) {
@@ -850,9 +860,9 @@ initServer( rsComm_t *svrComm ) {
     }
     initConnectControl();
 
-#if RODS_CAT // JMC - backport 4612
-    purgeLockFileDir( 0 );
-#endif
+    if( irods::CFG_SERVICE_ROLE_PROVIDER == svc_role ) {
+        purgeLockFileDir( 0 );
+    }
 
     return status;
 }

@@ -462,6 +462,9 @@ fi
     $PYTHON $DETECTEDDIR/update_json.py $MYSERVERCONFIGJSON string icat_host `hostname`
     if [ $ICAT_SERVER -eq 1 ] ; then
         $PYTHON $DETECTEDDIR/update_json.py $MYSERVERCONFIGJSON string admin_password $MYADMINPASSWORD
+        $PYTHON $DETECTEDDIR/update_json.py $MYSERVERCONFIGJSON string catalog_service_role provider
+    else
+        $PYTHON $DETECTEDDIR/update_json.py $MYSERVERCONFIGJSON string catalog_service_role consumer
     fi
 
     # prepare SQL from template

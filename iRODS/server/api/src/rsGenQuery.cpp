@@ -10,6 +10,7 @@
 #include "miscUtil.h"
 #include "cache.hpp"
 #include "rsGlobalExtern.hpp"
+#include "miscServerFunct.hpp"
 #include "irods_server_properties.hpp"
 
 #include "boost/format.hpp"
@@ -200,13 +201,26 @@ rsGenQuery( rsComm_t *rsComm, genQueryInp_t *genQueryInp,
     }
 
     if ( rodsServerHost->localFlag == LOCAL_HOST ) {
-#ifdef RODS_CAT
-        status = _rsGenQuery( rsComm, genQueryInp, genQueryOut );
-#else
-        rodsLog( LOG_NOTICE,
-                 "rsGenQuery error. RCAT is not configured on this host" );
-        return SYS_NO_RCAT_SERVER_ERR;
-#endif
+        std::string svc_role;
+        irods::error ret = get_catalog_service_role(svc_role);
+        if(!ret.ok()) {
+            irods::log(PASS(ret));
+            return ret.code();
+        }
+        
+        if( irods::CFG_SERVICE_ROLE_PROVIDER == svc_role ) {
+            status = _rsGenQuery( rsComm, genQueryInp, genQueryOut );
+        } else if( irods::CFG_SERVICE_ROLE_CONSUMER == svc_role ) {
+            rodsLog( LOG_NOTICE,
+                     "rsGenQuery error. RCAT is not configured on this host" );
+            return SYS_NO_RCAT_SERVER_ERR;
+        } else {
+            rodsLog(
+                LOG_ERROR,
+                "role not supported [%s]",
+                svc_role.c_str() );
+            status = SYS_SERVICE_ROLE_NOT_SUPPORTED;
+        }
     }
     else {
         // =-=-=-=-=-=-=-
@@ -236,7 +250,6 @@ rsGenQuery( rsComm_t *rsComm, genQueryInp_t *genQueryInp,
     return status;
 }
 
-#ifdef RODS_CAT
 int
 _rsGenQuery( rsComm_t *rsComm, genQueryInp_t *genQueryInp,
              genQueryOut_t **genQueryOut ) {
@@ -409,4 +422,4 @@ _rsGenQuery( rsComm_t *rsComm, genQueryInp_t *genQueryInp,
     }
     return status;
 }
-#endif
+

@@ -11,9 +11,9 @@
 #include "rsGlobalExtern.hpp"
 #include "readServerConfig.hpp"
 #include "icatHighLevelRoutines.hpp"
+#include "miscServerFunct.hpp"
 #include "irods_server_properties.hpp"
 
-#ifdef RODS_CAT
 int
 connectRcat() {
     int status = 0;
@@ -95,5 +95,3 @@ resetRcat() {
     IcatConnState = INITIAL_NOT_DONE;
     return 0;
 }
-
-#endif
