@@ -6,6 +6,7 @@
 
 #include "irods_log.hpp"
 #include "irods_get_full_path_for_config_file.hpp"
+#include "irods_configuration_keywords.hpp"
 
 int
 rsRuleExecSubmit( rsComm_t *rsComm, ruleExecSubmitInp_t *ruleExecSubmitInp,
