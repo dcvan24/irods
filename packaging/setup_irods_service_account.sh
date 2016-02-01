@@ -56,7 +56,7 @@ set +e
 CHECKACCT=`getent passwd $MYACCTNAME `
 set -e
 SCRIPTPATH=$( cd $(dirname $0) ; pwd -P )
-DETECTEDOS=`$SCRIPTPATH/find_os.sh`
+DETECTEDOS=`bash $SCRIPTPATH/find_os.sh`
 if [ "$CHECKACCT" = "" ] ; then
   # new account
   echo "Creating Service Account: $MYACCTNAME at $IRODS_HOME_DIR "

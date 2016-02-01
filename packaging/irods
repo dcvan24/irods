@@ -26,7 +26,7 @@ IRODS_CTL=./irodsctl
 
 cd $IRODS_HOME
 
-DETECTEDOS=`../packaging/find_os.sh`
+DETECTEDOS=`bash ../packaging/find_os.sh`
 
 if [ "$DETECTEDOS" = "MacOSX" ] ; then
     SU_SHELL_OPTS=""

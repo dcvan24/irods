@@ -72,7 +72,7 @@ namespace irods {
         const std::string& _assoc,
         const std::string& _delim ) {
         std::string::size_type pos = _string.find( _assoc );
-        if( std::string::npos == pos || _string.empty() ) { 
+        if( std::string::npos == pos || _string.empty() ) {
             return ERROR(
 			           INVALID_KVP_STRING,
 					   _string );
@@ -207,9 +207,11 @@ namespace irods {
         std::stringstream str;
         bool first = true;
         for ( kvp_map_t::const_iterator it = _kvp.begin(); it != _kvp.end(); ++it ) {
-            first ?
-            first = false :
-                    str << kvp_delimiter();
+            if (first) {
+                first = false;
+            } else {
+                str << kvp_delimiter();
+            }
             str << it->first << kvp_association() << it->second;
         }
         return str.str();
@@ -252,9 +254,11 @@ namespace irods {
         special_tokens.insert( kvp_association() );
         bool first = true;
         for ( kvp_map_t::const_iterator it = _kvp.begin(); it != _kvp.end(); ++it ) {
-            first ?
-            first = false :
-                    str << kvp_delimiter();
+            if (first) {
+                first = false;
+            } else {
+                str << kvp_delimiter();
+            }
             str << escape_string( it->first, kvp_escape(), special_tokens );
             str << kvp_association();
             str << escape_string( it->second, kvp_escape(), special_tokens );
