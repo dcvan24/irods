@@ -44,10 +44,10 @@ class Test_Catalog(ResourceBase, unittest.TestCase):
         # good URL
         self.admin.assert_icommand("izonereport > out.txt", use_unsafe_shell=True)
         if jsonschema_installed:
-            lib.assert_command('python ../../iRODS/scripts/python/validate_json.py out.txt https://schemas.irods.org/configuration/v2/zone_bundle.json',
+            lib.assert_command('python ../../iRODS/scripts/python/validate_json.py out.txt https://schemas.irods.org/configuration/v3/zone_bundle.json',
                                'STDOUT_MULTILINE', ['Validating', '... Success'], desired_rc=0)
         else:
-            lib.assert_command('python ../../iRODS/scripts/python/validate_json.py out.txt https://schemas.irods.org/configuration/v2/zone_bundle.json',
+            lib.assert_command('python ../../iRODS/scripts/python/validate_json.py out.txt https://schemas.irods.org/configuration/v3/zone_bundle.json',
                                'STDERR_SINGLELINE', 'jsonschema not installed', desired_rc=0)
 
         # cleanup

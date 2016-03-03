@@ -642,6 +642,15 @@ sub createDatabaseAndTables
                 printLog( "    Skipped.  Tables already created.\n" );
         }
 
+        my $update_catalog_schema = File::Spec->catdir( $scripttoplevel, "packaging", "update_catalog_schema.py" );
+	printStatus( "\n-----------------------------\n" );
+	printLog( "\n-----------------------------\n" );
+	printStatus( "Running update_catalog_schema.py...\n" );
+	printLog( "Running update_catalog_schema.py...\n" );
+	$output = `python $update_catalog_schema`;
+        printStatus( $output );
+
+
 }
 
 

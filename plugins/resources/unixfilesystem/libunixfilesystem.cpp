@@ -591,7 +591,7 @@ irods::error unix_file_open(
         // =-=-=-=-=-=-=-
         // trap error case with bad fd
         if ( fd < 0 ) {
-            int status = UNIX_FILE_CREATE_ERR - errsav;
+            int status = UNIX_FILE_OPEN_ERR - errsav;
             std::stringstream msg;
             msg << "Open error for \"";
             msg << fco->physical_path();
@@ -1431,9 +1431,7 @@ irods::error unix_file_resolve_hierarchy(
 // unix_file_rebalance - code which would rebalance the subtree
 irods::error unix_file_rebalance(
     irods::plugin_context& _ctx ) {
-    return update_resource_object_count(
-               _ctx.comm(),
-               _ctx.prop_map() );
+    return SUCCESS();
 
 } // unix_file_rebalancec
 

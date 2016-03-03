@@ -292,14 +292,15 @@ mv $TMPFILE $server_config
 
 # =-=-=-=-=-=-=-
 # run update_catalog_schema.py
-cd ..
-echo ""
-echo "-----------------------------"
-echo "Running update_catalog_schema.py..."
-if [ "$RUNINPLACE" == "1" ] ;  then
-    cp ./plugins/database/packaging/update_catalog_schema.py ./packaging/
-fi
-$PYTHON ./packaging/update_catalog_schema.py
+# moved to irods_setup.pl
+#cd ..
+#echo ""
+#echo "-----------------------------"
+#echo "Running update_catalog_schema.py..."
+#if [ "$RUNINPLACE" == "1" ] ;  then
+#    cp ./plugins/database/packaging/update_catalog_schema.py ./packaging/
+#fi
+#$PYTHON ./packaging/update_catalog_schema.py
 
 # =-=-=-=-=-=-=-
 # done

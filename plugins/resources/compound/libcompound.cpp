@@ -1634,10 +1634,7 @@ irods::error compound_file_rebalance(
         return PASS( result );
     }
 
-    return update_resource_object_count(
-               _ctx.comm(),
-               _ctx.prop_map() );
-
+    return SUCCESS();
 
 } // compound_file_rebalancec
 
