@@ -53,10 +53,33 @@ class Test_Iadmin(resource_suite.ResourceBase, unittest.TestCase):
     def tearDown(self):
         super(Test_Iadmin, self).tearDown()
 
-    @unittest.skip("SKIP UNTIL API PLUGINS WORK")
     def test_api_plugin(self):
-        self.admin.assert_icommand("iapitest", 'STDOUT_SINGLELINE', 'this')
-        assert 0 < lib.count_occurrences_of_string_in_log('server', 'HELLO WORLD')
+        rules_to_prepend = """
+pep_rs_hello_world_pre(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
+    writeLine("serverLog", "pep_rs_hello_world_pre - *INST *OUT *HELLO_IN, *HELLO_OUT");
+}
+pep_rs_hello_world_post(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
+    writeLine("serverLog", "pep_rs_hello_world_post - *INST *OUT *HELLO_IN, *HELLO_OUT");
+}
+"""
+        corefile = lib.get_core_re_dir() + "/core.re"
+        with lib.file_backed_up(corefile):
+	    time.sleep(1)  # remove once file hash fix is commited #2279
+	    lib.prepend_string_to_file(rules_to_prepend, corefile)
+	    time.sleep(1)  # remove once file hash fix is commited #2279
+
+            initial_size_of_server_log = lib.get_log_size('server')
+            self.admin.assert_icommand("iapitest", 'STDOUT_SINGLELINE', 'this')
+
+            pre_count =  lib.count_occurrences_of_string_in_log('server','pep_rs_hello_world_pre - api_instance <unconvertible> that=hello, world.++++this=42, null_value')
+            hello_count =  lib.count_occurrences_of_string_in_log('server', 'HELLO WORLD')
+            post_count =  lib.count_occurrences_of_string_in_log('server', 'pep_rs_hello_world_post - api_instance <unconvertible> that=hello, world.++++this=42, that=hello, world.++++this=42++++value=128')
+
+        assert 1 == pre_count
+        assert 1 == hello_count
+        assert 1 == post_count
+
+
 
     ###################
     # iadmin
