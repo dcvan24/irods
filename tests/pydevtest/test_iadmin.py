@@ -53,32 +53,6 @@ class Test_Iadmin(resource_suite.ResourceBase, unittest.TestCase):
     def tearDown(self):
         super(Test_Iadmin, self).tearDown()
 
-    def test_api_plugin(self):
-        rules_to_prepend = """
-pep_rs_hello_world_pre(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
-    writeLine("serverLog", "pep_rs_hello_world_pre - *INST *OUT *HELLO_IN, *HELLO_OUT");
-}
-pep_rs_hello_world_post(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
-    writeLine("serverLog", "pep_rs_hello_world_post - *INST *OUT *HELLO_IN, *HELLO_OUT");
-}
-"""
-        corefile = lib.get_core_re_dir() + "/core.re"
-        with lib.file_backed_up(corefile):
-	    time.sleep(1)  # remove once file hash fix is commited #2279
-	    lib.prepend_string_to_file(rules_to_prepend, corefile)
-	    time.sleep(1)  # remove once file hash fix is commited #2279
-
-            initial_size_of_server_log = lib.get_log_size('server')
-            self.admin.assert_icommand("iapitest", 'STDOUT_SINGLELINE', 'this')
-
-            pre_count =  lib.count_occurrences_of_string_in_log('server','pep_rs_hello_world_pre - api_instance <unconvertible> that=hello, world.++++this=42, null_value')
-            hello_count =  lib.count_occurrences_of_string_in_log('server', 'HELLO WORLD')
-            post_count =  lib.count_occurrences_of_string_in_log('server', 'pep_rs_hello_world_post - api_instance <unconvertible> that=hello, world.++++this=42, that=hello, world.++++this=42++++value=128')
-
-        assert 1 == pre_count
-        assert 1 == hello_count
-        assert 1 == post_count
-
 
 
     ###################
@@ -762,10 +736,6 @@ pep_rs_hello_world_post(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
         self.admin.assert_icommand("iadmin rmresc leaf_a")
         self.admin.assert_icommand("iadmin rmresc repl")
 
-    def test_rule_engine_2242(self):
-        self.admin.assert_icommand("irule -F rule1_2242.r", 'STDERR_SINGLELINE', "Operation not permitted")
-        self.admin.assert_icommand("irule -F rule2_2242.r", "EMPTY")
-
     def test_hosts_config(self):
         addy1 = {}
         addy1['address'] = socket.gethostname()
@@ -882,7 +852,6 @@ pep_rs_hello_world_post(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
         assert(-1 == result.find("userNameClient"))
 
     def test_server_config_environment_variables(self):
-
         server_config_filename = lib.get_irods_config_dir() + "/server_config.json"
         with lib.file_backed_up(server_config_filename):
 
@@ -953,46 +922,6 @@ pep_rs_hello_world_post(*INST,*OUT,*COMM,*HELLO_IN,*HELLO_OUT) {
             os.unlink(trigger_file)
             self.user0.assert_icommand('irm -f ' + trigger_file)
         time.sleep(2)  # remove once file hash fix is commited #2279
-
-    @unittest.skipIf(configuration.TOPOLOGY_FROM_RESOURCE_SERVER, 'Skip for topology testing from resource server: reads re server log')
-    def test_rule_engine_2309(self):
-        corefile = lib.get_core_re_dir() + "/core.re"
-        coredvm = lib.get_core_re_dir() + "/core.dvm"
-        with lib.file_backed_up(coredvm):
-            lib.prepend_string_to_file('oprType||rei->doinp->oprType\n', coredvm)
-            with lib.file_backed_up(corefile):
-                initial_size_of_server_log = lib.get_log_size('server')
-                rules_to_prepend = '''
- acSetNumThreads() {
-     writeLine("serverLog","test_rule_engine_2309: put: acSetNumThreads oprType [$oprType]");
- }
- '''
-                time.sleep(1)  # remove once file hash fix is commited #2279
-                lib.prepend_string_to_file(rules_to_prepend, corefile)
-                time.sleep(1)  # remove once file hash fix is commited #2279
-                trigger_file = 'file_to_trigger_acSetNumThreads'
-                lib.make_file(trigger_file, 4 * pow(10, 7))
-                self.admin.assert_icommand('iput {0}'.format(trigger_file))
-                assert 1 == lib.count_occurrences_of_string_in_log(
-                    'server', 'writeLine: inString = test_rule_engine_2309: put: acSetNumThreads oprType [1]', start_index=initial_size_of_server_log)
-                assert 0 == lib.count_occurrences_of_string_in_log('server', 'RE_UNABLE_TO_READ_SESSION_VAR', start_index=initial_size_of_server_log)
-                os.unlink(trigger_file)
-
-            with lib.file_backed_up(corefile):
-                initial_size_of_server_log = lib.get_log_size('server')
-                rules_to_prepend = '''
-acSetNumThreads() {
-    writeLine("serverLog","test_rule_engine_2309: get: acSetNumThreads oprType [$oprType]");
-}
-'''
-                time.sleep(1)  # remove once file hash fix is commited #2279
-                lib.prepend_string_to_file(rules_to_prepend, corefile)
-                time.sleep(1)  # remove once file hash fix is commited #2279
-                self.admin.assert_icommand('iget {0}'.format(trigger_file), use_unsafe_shell=True)
-                assert 1 == lib.count_occurrences_of_string_in_log(
-                    'server', 'writeLine: inString = test_rule_engine_2309: get: acSetNumThreads oprType [2]', start_index=initial_size_of_server_log)
-                assert 0 == lib.count_occurrences_of_string_in_log('server', 'RE_UNABLE_TO_READ_SESSION_VAR', start_index=initial_size_of_server_log)
-                os.unlink(trigger_file)
 
     def test_storageadmin_role(self):
         self.admin.assert_icommand("iadmin mkuser nopes storageadmin", 'STDERR_SINGLELINE', "CAT_INVALID_USER_TYPE")
