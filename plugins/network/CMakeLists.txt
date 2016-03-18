@@ -24,7 +24,6 @@ set(
 
 set(
   BUILD_SYMBOLS_CLIENT
-  RODS_SERVER
   )
 
 set(
