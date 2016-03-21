@@ -175,7 +175,7 @@ namespace irods {
                     #ifdef ENABLE_RE
                     ruleExecInfo_t rei;
                     memset( ( char* )&rei, 0, sizeof( ruleExecInfo_t ) );
-                    rei.rsComm        = _comm;
+                    rei.rsComm = _comm;
 
                     dynamic_operation_execution_manager<
                         default_re_ctx,

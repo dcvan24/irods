@@ -186,7 +186,8 @@ int parseAndComputeRuleAdapter( char *rule, msParamArray_t *msParamArray, ruleEx
 
     return rescode;
 error:
-    logErrMsg( &errmsgBuf, &rei->rsComm->rError );
+    rError_t* r_err = rei->rsComm ? &rei->rsComm->rError : nullptr;
+    logErrMsg( &errmsgBuf, r_err );
     rei->status = rescode;
     freeRErrorContent( &errmsgBuf );
     /* deleteEnv(env, 3); */
@@ -729,7 +730,8 @@ Res *parseAndComputeExpressionAdapter( char *inAction, msParamArray_t *inMsParam
     freeCmdExecOut( execOut );
     /* deleteEnv(env, 3); */
     if ( getNodeType( res ) == N_ERROR && !freeRei ) {
-        logErrMsg( &errmsgBuf, &rei->rsComm->rError );
+        rError_t* r_err = rei->rsComm ? &rei->rsComm->rError : nullptr;
+        logErrMsg( &errmsgBuf, r_err );
         rei->status = RES_ERR_CODE( res );
     }
     freeRErrorContent( &errmsgBuf );
