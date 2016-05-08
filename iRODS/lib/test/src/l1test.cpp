@@ -130,7 +130,7 @@ main( int argc, char **argv ) {
         exit( 1 );
     }
 
-    l1descInx3 = rcDataObjPut( conn, &dataObjOprInp, argv[1] );
+    l1descInx3 = rcDataObjPut( conn, &dataObjOprInp, argv[1], 0);
     if ( l1descInx3 < 0 ) {
         fprintf( stderr, "rcDataObjPut error. status = %d\n", l1descInx3 );
         rcDisconnect( conn );

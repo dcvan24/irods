@@ -97,7 +97,7 @@
  **/
 
 int
-rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
+rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int localPort) {
     int status;
     portalOprOut_t *portalOprOut = NULL;
     bytesBuf_t dataObjInpBBuf;
@@ -111,6 +111,10 @@ rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
 
     memset( &conn->transStat, 0, sizeof( transStat_t ) );
     memset( &dataObjInpBBuf, 0, sizeof( dataObjInpBBuf ) );
+
+    if(localPort > 0){
+        printf("local port: %d\n", localPort);
+    }
 
     rodsEnv rods_env;
     if ( int status = getRodsEnv( &rods_env ) ) {
@@ -203,8 +207,9 @@ rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
     }
     else {
         if ( getValByKey( &dataObjInp->condInput, VERY_VERBOSE_KW ) != NULL ) {
-            printf( "From server: NumThreads=%d, addr:%s, port:%d, cookie=%d\n",
+            printf( "From server: NumThreads=%d, addr:%s, localPort:%d, port:%d, cookie=%d\n",
                     portalOprOut->numThreads, portalOprOut->portList.hostAddr,
+                    localPort,
                     portalOprOut->portList.portNum, portalOprOut->portList.cookie );
         }
         /* some sanity check */
