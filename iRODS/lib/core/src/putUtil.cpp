@@ -65,6 +65,10 @@ putUtil( rcComm_t **myConn, rodsEnv *myRodsEnv,
             setSessionTicket( conn, myRodsArgs->ticketString );
         }
     }
+    
+    if(myRodsArgs->localPort == True){
+        printf("local port: %d\n", myRodsArgs->localPortValue);
+    }
 
     status = initCondForPut( conn, myRodsEnv, myRodsArgs, &dataObjOprInp,
                              &bulkOprInp, &rodsRestart );

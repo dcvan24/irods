@@ -35,6 +35,7 @@ static int parse_program_options(
     ( "verify_checksum,K", "verify checksum - calculate and verify the checksum on the data, both client-side and server-side, without storing in the catalog." )
     ( "repl_num,n", po::value<std::string>(), "replNum  - the replica to be replaced, typically not needed" )
     ( "num_threads,N", po::value<int>(), "numThreads - the number of threads to use for the transfer. A value of 0 means no threading. By default (-N option not used) the server decides the number of threads to use." )
+    ( "local_port,L", po::value<int>(), "localPort - the local port to use" )
     ( "physical_path,p", po::value<std::string>(), "physicalPath - the absolute physical path of the uploaded file on the server" )
     ( "progress,P", "output the progress of the upload." )
     ( "rbudp,Q", "use RBUDP (datagram) protocol for the data transfer" )
@@ -131,6 +132,15 @@ static int parse_program_options(
         _rods_args.number = 1;
         try {
             _rods_args.numberValue = global_prog_ops_var_map[ "num_threads" ].as<int>();
+        }
+        catch ( const boost::bad_any_cast& ) {
+            return INVALID_ANY_CAST;
+        }
+    }
+    if ( global_prog_ops_var_map.count( "local_port" ) ) {
+        _rods_args.localPort = 1;
+        try {
+            _rods_args.localPortValue = global_prog_ops_var_map[ "local_port" ].as<int>();
         }
         catch ( const boost::bad_any_cast& ) {
             return INVALID_ANY_CAST;
