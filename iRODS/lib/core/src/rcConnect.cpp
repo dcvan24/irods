@@ -435,7 +435,7 @@ cliReconnManager( rcComm_t *conn ) {
             htons( ( unsigned short ) conn->svrVersion->reconnPort );
 
         conn->reconnectedSock =
-            connectToRhostWithRaddr( &remoteAddr, conn->windowSize, 0 );
+            connectToRhostWithRaddr( &remoteAddr, conn->windowSize, 0, 0);
 
         if ( conn->reconnectedSock < 0 ) {
             conn->thread_ctx->cond->notify_all();

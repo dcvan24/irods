@@ -53,14 +53,14 @@ int myRead( int sock, void *buf, int len, int *bytesRead, struct timeval *tv );
 int myWrite( int sock, void *buf, int len, int *bytesWritten );
 int connectToRhost( rcComm_t *conn, int connectCnt, int reconnFlag );
 int connectToRhostWithRaddr( struct sockaddr_in *remoteAddr, int windowSize,
-                             int timeoutFlag );
-int connectToRhostWithTout( struct sockaddr *sin );
+                             int timeoutFlag, int localPort);
+int connectToRhostWithTout( struct sockaddr *sin, int localPort);
 int rodsSleep( int sec, int microSec );
 int setConnAddr( rcComm_t *conn );
 int setRemoteAddr( int sock, struct sockaddr_in *remoteAddr );
 int setLocalAddr( int sock, struct sockaddr_in *localAddr );
 int sendStartupPack( rcComm_t *conn, int connectCnt, int reconnFlag );
-int connectToRhostPortal( char *rodsHost, int rodsPort, int cookie, int windowSize );
+int connectToRhostPortal( char *rodsHost, int rodsPort, int cookie, int windowSize, int localPort);
 int rsAcceptConn( rsComm_t *svrComm );
 char* rods_inet_ntoa( struct in_addr in );
 int irodsCloseSock( int sock );

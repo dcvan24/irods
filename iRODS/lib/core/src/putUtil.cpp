@@ -291,7 +291,7 @@ putFileUtil( rcComm_t *conn, char *srcPath, char *targPath, rodsLong_t srcSize,
 
 int
 initCondForPut( rcComm_t *conn, rodsEnv *myRodsEnv, rodsArguments_t *rodsArgs,
-                dataObjInp_t *dataObjOprInp, bulkOprInp_t *bulkOprInp,
+                dataObjInp_t *dataObjOprInp, bulkOprInp_t *bulkOprInp, 
                 rodsRestart_t *rodsRestart ) {
     char *tmpStr;
 

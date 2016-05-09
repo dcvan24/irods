@@ -112,10 +112,6 @@ rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int l
     memset( &conn->transStat, 0, sizeof( transStat_t ) );
     memset( &dataObjInpBBuf, 0, sizeof( dataObjInpBBuf ) );
 
-    if(localPort > 0){
-        printf("local port: %d\n", localPort);
-    }
-
     rodsEnv rods_env;
     if ( int status = getRodsEnv( &rods_env ) ) {
         rodsLog( LOG_ERROR, "getRodsEnv failed in %s with status %s", __FUNCTION__, status );
@@ -226,7 +222,7 @@ rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int l
 
         conn->transStat.numThreads = portalOprOut->numThreads;
         status = putFileToPortal( conn, portalOprOut, locFilePath,
-                                  dataObjInp->objPath, dataObjInp->dataSize );
+                                  dataObjInp->objPath, dataObjInp->dataSize, localPort);
     }
 
     /* just send a complete msg */

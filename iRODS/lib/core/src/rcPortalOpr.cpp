@@ -131,7 +131,7 @@ fillBBufWithFile( rcComm_t *conn, bytesBuf_t *myBBuf, char *locFilePath,
 
 int
 putFileToPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
-                 char *locFilePath, char *objPath, rodsLong_t dataSize ) {
+                 char *locFilePath, char *objPath, rodsLong_t dataSize, int localPort) {
     rcPortalTransferInp_t myInput[MAX_NUM_CONFIG_TRAN_THR];
     boost::thread* tid[MAX_NUM_CONFIG_TRAN_THR];
     int retVal = 0;
@@ -149,7 +149,7 @@ putFileToPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
     if ( portalOprOut->numThreads > MAX_NUM_CONFIG_TRAN_THR ) {
         for ( int i = 0; i < portalOprOut->numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort + i);
             if ( sock >= 0 ) {
                 close( sock );
             }
@@ -167,7 +167,7 @@ putFileToPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
     if ( numThreads == 1 ) {
         const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort);
         if ( sock < 0 ) {
             return sock;
         }
@@ -207,7 +207,7 @@ putFileToPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
         for ( int i = 0; i < numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort + i);
             if ( sock < 0 ) {
                 return sock;
             }
@@ -842,7 +842,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
         /* drain the connection or it will be stuck */
         for ( int i = 0; i < numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
             if ( sock >= 0 ) {
                 close( sock );
             }
@@ -860,7 +860,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
     if ( numThreads == 1 ) {
         const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
         if ( sock < 0 ) {
             return sock;
         }
@@ -898,7 +898,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
         for ( int i = 0; i < numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize );
+                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
             int out_fd = -1;
             if ( sock < 0 ) {
                 return sock;
@@ -1358,7 +1358,7 @@ initRbudpClient( rbudpBase_t *rbudpBase, portList_t *myPortList ) {
     tcpPort = getTcpPortFromPortList( myPortList );
 
     tcpSock = connectToRhostPortal( myPortList->hostAddr,
-                                    tcpPort, myPortList->cookie, myPortList->windowSize );
+                                    tcpPort, myPortList->cookie, myPortList->windowSize, 0);
     if ( tcpSock < 0 ) {
         return tcpSock;
     }
