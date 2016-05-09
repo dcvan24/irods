@@ -1,7 +1,8 @@
 #!/usr/bin/env python 
 
+import os
 import requests
-import psutil
+import json
 import netifaces as ni
 from argparse import ArgumentParser
 from subprocess import Popen, PIPE
@@ -9,8 +10,8 @@ from subprocess import Popen, PIPE
 OPERATION='iput'
 DEFAULT_IFACE = 'eth1'
 DEFAULT_LOCAL_PORT_START = 60000
-DEFAULT_CONTROLLER = 'http://129.7.98.39:8080'
-
+CONTROLLER_URL = 'http://129.7.98.39:8080'
+LOCK_FILE = '/tmp/iput.lock'
 
 def create_args():
     parser = ArgumentParser(
@@ -37,11 +38,8 @@ def create_args():
     
     return parser.parse_args()
 
-
-def get_local_port():
-    return max([c.laddr[1] 
-        for c in psutil.net_connections() 
-        if c.laddr[1] >= DEFAULT_LOCAL_PORT_START])
+def get_local_port(num_thread):
+    pass
 
 def get_local_ip_addr():
     return ni.ifaddresses(DEFAULT_IFACE)[2][0]['addr']
@@ -51,10 +49,17 @@ def send_request(tcp_info, metadata):
         tcp_info::tuple - (src_ip, src_port_start, src_port_end)
         metadata::str - metadata tag
     '''
-    pass
+    data = json.dumps({
+        'tcp_info': tcp_info,
+        'operation': OPERATION,
+        'metadata': metadata
+    })
+    res = requests.put(CONTROLLER_URL, data=data)
+    
 
 def create_command(args):
     pass
 
 if '__main__' == __name__:
     print get_local_port()
+    print get_local_ip_addr()

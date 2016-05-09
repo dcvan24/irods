@@ -1382,7 +1382,7 @@ remLocCopy( rsComm_t *rsComm, dataCopyInp_t *dataCopyInp ) {
     memset( myInput, 0, sizeof( myInput ) );
 
     sock = connectToRhostPortal( myPortList->hostAddr,
-                                 myPortList->portNum, myPortList->cookie, rsComm->windowSize );
+                                 myPortList->portNum, myPortList->cookie, rsComm->windowSize, 0);
     if ( sock < 0 ) {
         return sock;
     }
@@ -1429,7 +1429,7 @@ remLocCopy( rsComm_t *rsComm, dataCopyInp_t *dataCopyInp ) {
 
         for ( i = 1; i < numThreads; i++ ) {
             sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, rsComm->windowSize );
+                                         myPortList->portNum, myPortList->cookie, rsComm->windowSize, 0);
             if ( sock < 0 ) {
                 return sock;
             }
