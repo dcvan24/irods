@@ -22,8 +22,6 @@ HTTP_HEADERS = {
     'content-type': 'application/json' 
 }
 
-has_requested_controller = False
-
 def create_args():
    parser = ArgumentParser(
            description='SDN-enabled iRODS iput Utility')
@@ -62,6 +60,7 @@ def init_args(args):
         args.num_thread = get_num_thread(file_size)
     args.local_port = get_port(args.num_thread)
     args.bandwidth = parse_bandwidth(args.bandwidth)
+    args.has_requested_controller = False
 
 def request_icat_path(args):
     res = http_put('/icat/%s'%args.transfer_id, {
@@ -91,6 +90,7 @@ def request_bandwidth(args):
     r = http_put('/transfer/%s'%args.transfer_id, data)
     if not r.ok:
         raise Exception(r.text)
+    args.has_requested_controller = True
     return r.json()
 
 def limit_rate(alloc):
@@ -116,9 +116,10 @@ def execute_command(cmd):
     out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
     if err:
         raise Exception(err)
-    print out
+    print out,
 
 def clean_up(args):
+    print 'clean up'
     return http_delete('/transfer/%s'%args.transfer_id)
 
 def get_num_thread(file_size):
@@ -170,7 +171,7 @@ def http_put(path, data):
         return {}
 
 def http_delete(path):
-    r = request.delete(
+    r = requests.delete(
         '%s%s'%(CONTROLLER_WSGI_URL, path))
     return r
 
@@ -183,14 +184,13 @@ if '__main__' == __name__:
         #if alloc:
         #    limit_rate(alloc)
         cmd = create_command(args)
-        print cmd
         execute_command(cmd)
-    #except KeyboardInterrupt:
-    #    pass
-    #except Exception, e:
-    #    sys.exit(str(e))
+    except KeyboardInterrupt:
+        pass
+    except Exception, e:
+        sys.exit(str(e))
     finally:
-        if has_requested_controller:
+        if args.has_requested_controller:
             r = clean_up(args)
             if not r.ok:
                 logging.error(r.text)
