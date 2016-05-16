@@ -57,6 +57,8 @@ getUtil( rcComm_t **myConn, rodsEnv *myRodsEnv, rodsArguments_t *myRodsArgs,
         }
     }
 
+    printf("getUtil: localPort: %d\n", myRodsArgs->localPort);
+
     initCondForGet( conn, myRodsArgs, &dataObjOprInp, &rodsRestart );
 
     if ( rodsPathInp->resolved == False ) {
@@ -199,7 +201,7 @@ getUtil( rcComm_t **myConn, rodsEnv *myRodsEnv, rodsArguments_t *myRodsArgs,
 int
 getDataObjUtil( rcComm_t *conn, char *srcPath, char *targPath,
                 rodsLong_t srcSize, uint dataMode,
-                rodsArguments_t *rodsArgs, dataObjInp_t *dataObjOprInp ) {
+                rodsArguments_t *rodsArgs, dataObjInp_t *dataObjOprInp) {
     int status;
     struct timeval startTime, endTime;
 
@@ -239,7 +241,7 @@ getDataObjUtil( rcComm_t *conn, char *srcPath, char *targPath,
         dataObjOprInp->dataSize = srcSize;
     }
 
-    status = rcDataObjGet( conn, dataObjOprInp, targPath );
+    status = rcDataObjGet( conn, dataObjOprInp, targPath, rodsArgs->localPortValue);
 
     if ( status >= 0 ) {
         /* old objState use numCopies in place of dataMode.

@@ -88,7 +88,7 @@
  **/
 
 int
-rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
+rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int localPort) {
 #ifndef windows_platform
     struct stat statbuf;
 #else
@@ -208,7 +208,7 @@ rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
 
             conn->transStat.numThreads = portalOprOut->numThreads;
             status = getFileFromPortal( conn, portalOprOut, locFilePath,
-                                        dataObjInp->objPath, dataObjInp->dataSize );
+                                        dataObjInp->objPath, dataObjInp->dataSize, localPort);
         }
         /* just send a complete msg */
         if ( status < 0 ) {

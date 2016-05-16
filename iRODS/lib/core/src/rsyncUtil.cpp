@@ -249,7 +249,7 @@ rsyncDataToFileUtil( rcComm_t *conn, rodsPath_t *srcPath,
     if ( getFlag == 1 ) {
         /* only do the sync if no -l option specified */
         if ( myRodsArgs->longOption != True ) {
-            status = rcDataObjGet( conn, dataObjOprInp, targPath->outPath );
+            status = rcDataObjGet( conn, dataObjOprInp, targPath->outPath, 0);
         }
         else {
             status = 0;

@@ -117,7 +117,7 @@ rcDataObjRsync( rcComm_t *conn, dataObjInp_t *dataObjInp ) {
             return USER_INPUT_PATH_ERR;
         }
         else {
-            status = rcDataObjGet( conn, dataObjInp, locFilePath );
+            status = rcDataObjGet( conn, dataObjInp, locFilePath, 0);
             if ( status >= 0 ) {
                 return SYS_RSYNC_TARGET_MODIFIED;
             }
@@ -178,7 +178,7 @@ rcDataObjRsync( rcComm_t *conn, dataObjInp_t *dataObjInp ) {
                 }
             }
             else {
-                status = rcDataObjGet( conn, dataObjInp, locFilePath );
+                status = rcDataObjGet( conn, dataObjInp, locFilePath, 0);
                 if ( l1descInx >= 0 ) {
                     rcOprComplete( conn, l1descInx );
                 }

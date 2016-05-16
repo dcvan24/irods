@@ -56,7 +56,7 @@ rcExecMyRule( rcComm_t *conn, execMyRuleInp_t *execMyRuleInp,
                       ( locFilePath = ( char * ) myFile ) ) ) {
                 status = putParam ?
                          rcDataObjPut( conn, dataObjInp, locFilePath, 0) :
-                         rcDataObjGet( conn, dataObjInp, locFilePath);
+                         rcDataObjGet( conn, dataObjInp, locFilePath, 0);
                 rcOprComplete( conn, status );
             }
             else {

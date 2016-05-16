@@ -54,7 +54,7 @@ extern "C" {
  *   return value - The status of the operation.
  */
 int
-rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath );
+rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int localPort);
 
 int
 _rcDataObjGet( rcComm_t *conn, dataObjInp_t *dataObjInp,

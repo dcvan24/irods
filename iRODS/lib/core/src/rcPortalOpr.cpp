@@ -824,7 +824,8 @@ getFile( rcComm_t *conn, int l1descInx, char *locFilePath, char *objPath,
 
 int
 getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
-                   char *locFilePath, char *objPath, rodsLong_t dataSize ) {
+                   char *locFilePath, char *objPath, rodsLong_t dataSize, int localPort) {
+    
     rcPortalTransferInp_t myInput[MAX_NUM_CONFIG_TRAN_THR];
     boost::thread* tid[MAX_NUM_CONFIG_TRAN_THR];
     int retVal = 0;
@@ -842,7 +843,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
         /* drain the connection or it will be stuck */
         for ( int i = 0; i < numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
+                                 myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort + i);
             if ( sock >= 0 ) {
                 close( sock );
             }
@@ -860,7 +861,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
     if ( numThreads == 1 ) {
         const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
+                                     myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort);
         if ( sock < 0 ) {
             return sock;
         }
@@ -898,7 +899,7 @@ getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
 
         for ( int i = 0; i < numThreads; i++ ) {
             const int sock = connectToRhostPortal( myPortList->hostAddr,
-                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, 0);
+                                         myPortList->portNum, myPortList->cookie, myPortList->windowSize, localPort + i);
             int out_fd = -1;
             if ( sock < 0 ) {
                 return sock;
