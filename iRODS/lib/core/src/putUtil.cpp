@@ -378,6 +378,11 @@ initCondForPut( rcComm_t *conn, rodsEnv *myRodsEnv, rodsArguments_t *rodsArgs,
     }
 #endif
 
+    dataObjOprInp->localPort = 0;
+    if(rodsArgs->localPort == True){
+        dataObjOprInp->localPort = rodsArgs->localPortValue;
+    }
+
     if ( rodsArgs->physicalPath == True ) {
         if ( rodsArgs->physicalPathString == NULL ) {
             rodsLog( LOG_ERROR,

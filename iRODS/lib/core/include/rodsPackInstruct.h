@@ -53,15 +53,15 @@
 
 #define InxValPair_PI "int isLen; int *inx(isLen); str *svalue[isLen];"
 
-#define DataObjInp_PI "str objPath[MAX_NAME_LEN]; int createMode; int openFlags; double offset; double dataSize; int numThreads; int oprType; struct *SpecColl_PI; struct KeyValPair_PI;"
+#define DataObjInp_PI "str objPath[MAX_NAME_LEN]; int createMode; int openFlags; double offset; double dataSize; int numThreads; int localPort; int oprType; struct *SpecColl_PI; struct KeyValPair_PI;"
 
 #define OpenedDataObjInp_PI "int l1descInx; int len; int whence; int oprType; double offset; double bytesWritten; struct KeyValPair_PI;"
 
 #define PortList_PI "int portNum; int cookie; int sock; int windowSize; str hostAddr[LONG_NAME_LEN];"
 
-#define PortalOprOut_PI "int status; int l1descInx; int numThreads; str chksum[NAME_LEN]; struct PortList_PI;"
+#define PortalOprOut_PI "int status; int l1descInx; int numThreads; int localPort; str chksum[NAME_LEN]; struct PortList_PI;"
 
-#define DataOprInp_PI "int oprType; int numThreads; int srcL3descInx; int destL3descInx; int srcRescTypeInx; int destRescTypeInx; double offset; double dataSize; struct KeyValPair_PI;"
+#define DataOprInp_PI "int oprType; int numThreads; int localPort; int srcL3descInx; int destL3descInx; int srcRescTypeInx; int destRescTypeInx; double offset; double dataSize; struct KeyValPair_PI;"
 
 #define CollInpNew_PI "str collName[MAX_NAME_LEN]; int flags; int oprType; struct KeyValPair_PI;"
 

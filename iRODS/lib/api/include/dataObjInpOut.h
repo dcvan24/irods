@@ -69,6 +69,7 @@ typedef struct DataObjInp {
     rodsLong_t offset;
     rodsLong_t dataSize;
     int numThreads;
+    int localPort;
     int oprType;
     specColl_t *specColl;
     keyValPair_t condInput;   /* include chksum flag and value */
@@ -115,6 +116,7 @@ typedef struct portalOprOut {
     int status;
     int l1descInx;
     int numThreads;
+    int localPort;
     char chksum[NAME_LEN];
     portList_t portList;
 } portalOprOut_t;
@@ -122,6 +124,7 @@ typedef struct portalOprOut {
 typedef struct DataOprInp {
     int oprType;
     int numThreads;
+    int localPort;
     int srcL3descInx;
     int destL3descInx;
     int srcRescTypeInx;

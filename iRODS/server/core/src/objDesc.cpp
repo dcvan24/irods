@@ -424,6 +424,7 @@ initDataOprInp( dataOprInp_t *dataOprInp, int l1descInx, int oprType ) {
     dataOprInp->oprType = oprType;
     dataOprInp->numThreads = dataObjInp->numThreads;
     dataOprInp->offset = dataObjInp->offset;
+    dataOprInp->localPort = dataObjInp->localPort;
     if ( oprType == PUT_OPR ) {
         if ( dataObjInp->dataSize > 0 ) {
             dataOprInp->dataSize = dataObjInp->dataSize;
