@@ -4,20 +4,24 @@ import os
 import sys
 import uuid
 import json
+import atexit
 import socket
 import requests
-import logging
 import netifaces as ni
 
 from argparse import ArgumentParser
 from subprocess import Popen, PIPE
 
+OPERATION = 'iput'
+ICAT_HOST = 'icat'
+LOCAL_HOSTNAME = socket.gethostname()
+LOCAL_IP_ADDR = ni.ifaddresses('eth1')[2][0]['addr'] 
+DEFAULT_IFACE = 'eth1'
 TMP_PORT_ENTRY = '/tmp/irods/irods_local_port'
-TMP_ICAT_ENTRY = '/tmp/irods/icat_connected'
 MAX_PORT_VALUE = 65565
 LOCAL_PORT_START = 60000
 DEFAULT_BANDWIDTH = '10M'
-CONTROLLER_WSGI_URL = 'http://129.7.98.12:8080'
+CONTROLLER_WSGI_URL = 'http://165.124.159.6:8080'
 HTTP_HEADERS = {
     'content-type': 'application/json' 
 }
@@ -33,7 +37,7 @@ def create_args():
            default='%sResource'%socket.gethostname(),
            help='resource name')
    parser.add_argument('-b', '--bandwidth',
-           type=str, dest='bandwidth', default=DEFAULT_BANDWIDTH,
+           type=int, dest='bandwidth', default=DEFAULT_BANDWIDTH,
            help='bandwidth demand in (K/M/G)')
    parser.add_argument('--metadata',
            type=str, dest='metadata',
@@ -52,33 +56,29 @@ def create_args():
    return parser.parse_args()
 
 def init_args(args):
-    args.transfer_id = '%s-%s'%(socket.gethostname(), str(uuid.uuid4()))
+    args.transfer_id = '%s-%s'%(LOCAL_HOSTNAME, str(uuid.uuid4()))
     args.path = os.path.abspath(args.path)
     # set number of threads if not set
     if not args.num_thread:
         file_size = os.stat(args.path).st_size
         args.num_thread = get_num_thread(file_size)
     args.local_port = get_port(args.num_thread)
-    args.bandwidth = parse_bandwidth(args.bandwidth)
     args.has_requested_controller = False
 
-def request_icat_path(args):
-    res = http_put('/icat/%s'%args.transfer_id, {
-        'src_ip': ni.ifaddresses('eth1')[2][0]['addr'],
-        'dst_ip': socket.gethostbyname('icat')
+def request_management_flows(args):
+    print 'Request management flow'
+    res = http_put('/client/%s'%LOCAL_HOSTNAME, {
+        'client_ip': LOCAL_IP_ADDR,
+        'icat_ip': socket.gethostbyname(ICAT_HOST)
     })
 
-
-def request_bandwidth(args):
+def request_data_transfer_flows(args):
+    print "Request data transfer flows"
     dst_ip = get_resource_ip_addr(args.resource)
     if not dst_ip:
         return {}
-
-    with open(TMP_ICAT_ENTRY, 'w') as f:
-        f.write('')
-
     data = {
-        'src_ip': ni.ifaddresses('eth1')[2][0]['addr'],
+        'src_ip': LOCAL_IP_ADDR,
         'dst_ip': dst_ip,
         'num_thread': args.num_thread,
         'src_port': args.local_port,
@@ -92,9 +92,6 @@ def request_bandwidth(args):
         raise Exception(r.text)
     args.has_requested_controller = True
     return r.json()
-
-def limit_rate(alloc):
-    pass
 
 def create_command(args):
     cmd = ['iput']
@@ -113,14 +110,20 @@ def create_command(args):
     return cmd
 
 def execute_command(cmd):
+    print 'Start transfer'
     out, err = Popen(cmd, stdout=PIPE, stderr=PIPE).communicate()
     if err:
         raise Exception(err)
-    print out,
+    if len(out) > 0:
+        print out,
+    print 'Transfer done'
 
 def clean_up(args):
-    print 'clean up'
-    return http_delete('/transfer/%s'%args.transfer_id)
+    print 'Clean up'
+    if args.has_requested_controller:
+        r = http_delete('/transfer/%s'%args.transfer_id)
+        if not r.ok:
+            sys.stderr.write(r.text)
 
 def get_num_thread(file_size):
     file_size /= 1024 ** 2
@@ -134,29 +137,20 @@ def get_port(num_thread):
             port = int(f.readline(5))
             if MAX_PORT_VALUE - port < num_thread:
                 port = LOCAL_PORT_START
+            f.seek(0)
             f.write('%d'%(port + num_thread))
+            f.truncate()
     else:
         port = LOCAL_PORT_START
         with open(TMP_PORT_ENTRY, 'w') as f:
             f.write('%d'%(LOCAL_PORT_START + num_thread))
     return port
 
-def parse_bandwidth(bandwidth):
-    unit = bandwidth[-1]
-    val = int(bandwidth[:-1])
-    if unit not in ('M', 'G'):
-        raise ValueError('Invalid bandwidth value')
-    elif 'G' == unit:
-        val *= 1000 
-    return val
-
 def get_resource_ip_addr(resource):
     hostname = resource[:resource.index('R')]
     localhost = socket.gethostname() 
     if localhost == hostname:
         return None
-    if resource == 'demoResc':
-        return socket.gethostbyname('icat')
     ip = socket.gethostbyname(hostname)
     return ip
 
@@ -167,7 +161,6 @@ def http_put(path, data):
     try:
         return r
     except Exception, e:
-        logging.exception(str(e))
         return {}
 
 def http_delete(path):
@@ -177,20 +170,17 @@ def http_delete(path):
 
 if '__main__' == __name__:
     args = create_args()
+    atexit.register(clean_up, args)
     try:
         init_args(args)
-        request_icat_path(args)
-        alloc = request_bandwidth(args)
-        #if alloc:
-        #    limit_rate(alloc)
+        request_management_flows(args)
+        alloc = request_data_transfer_flows(args)
+        print json.dumps(alloc, sort_keys=True, indent=4)
         cmd = create_command(args)
+        print cmd
         execute_command(cmd)
     except KeyboardInterrupt:
         pass
     except Exception, e:
+        print e
         sys.exit(str(e))
-    finally:
-        if args.has_requested_controller:
-            r = clean_up(args)
-            if not r.ok:
-                logging.error(r.text)
