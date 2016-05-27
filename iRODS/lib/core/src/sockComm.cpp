@@ -782,7 +782,7 @@ rodsSetSockOpt( int sock, int windowSize ) {
 
 int
 connectToRhostPortal( char *rodsHost, int rodsPort,
-                      int cookie, int windowSize ) {
+                      int cookie, int windowSize, int localPort) {
     int status, nbytes;
     struct sockaddr_in remoteAddr;
     int sock, myCookie;

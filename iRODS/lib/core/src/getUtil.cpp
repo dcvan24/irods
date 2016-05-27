@@ -239,7 +239,7 @@ getDataObjUtil( rcComm_t *conn, char *srcPath, char *targPath,
         dataObjOprInp->dataSize = srcSize;
     }
 
-    status = rcDataObjGet( conn, dataObjOprInp, targPath );
+    status = rcDataObjGet( conn, dataObjOprInp, targPath, rodsArgs->localPortValue);
 
     if ( status >= 0 ) {
         /* old objState use numCopies in place of dataMode.
