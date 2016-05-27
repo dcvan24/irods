@@ -119,6 +119,10 @@ typedef struct {
     int retries;
     int retriesValue;
     int regRepl;
+    
+    int localPort;
+    int localPortValue;
+
 
     int parallel;
     int serial;

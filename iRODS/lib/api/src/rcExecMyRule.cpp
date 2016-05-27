@@ -55,8 +55,8 @@ rcExecMyRule( rcComm_t *conn, execMyRuleInp_t *execMyRuleInp,
                     ( ( status = splitPathByKey( dataObjInp->objPath, myDir, MAX_NAME_LEN, myFile, MAX_NAME_LEN, '/' ) ) >= 0 &&
                       ( locFilePath = ( char * ) myFile ) ) ) {
                 status = putParam ?
-                         rcDataObjPut( conn, dataObjInp, locFilePath ) :
-                         rcDataObjGet( conn, dataObjInp, locFilePath );
+                         rcDataObjPut( conn, dataObjInp, locFilePath, 0) :
+                         rcDataObjGet( conn, dataObjInp, locFilePath, 0);
                 rcOprComplete( conn, status );
             }
             else {

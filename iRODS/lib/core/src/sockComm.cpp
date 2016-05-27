@@ -795,7 +795,7 @@ connectToRhostPortal( char *rodsHost, int rodsPort,
         return status;
     }
     /* set timeout 11/13/2009 */
-    sock = connectToRhostWithRaddr( &remoteAddr, windowSize, 1 );
+    sock = connectToRhostWithRaddr( &remoteAddr, windowSize, 1, localPort);
 
     if ( sock < 0 ) {
         rodsLog( LOG_ERROR,
@@ -819,7 +819,7 @@ int
 connectToRhost( rcComm_t *conn, int connectCnt, int reconnFlag ) {
     int status;
     conn->sock = connectToRhostWithRaddr( &conn->remoteAddr,
-                                          conn->windowSize, 1 );
+                                          conn->windowSize, 1, 0);
     if ( conn->sock < 0 ) {
         rodsLogError( LOG_NOTICE, conn->sock,
                       "connectToRhost: connect to host %s on port %d failed, status = %d",
@@ -923,7 +923,8 @@ connectToRhost( rcComm_t *conn, int connectCnt, int reconnFlag ) {
 
 
 int
-try_twice_to_create_socket(void) {
+try_twice_to_create_socket(int localPort) {
+    struct sockaddr_in localAddr;
     int sock = socket( AF_INET, SOCK_STREAM, 0 );
     if ( sock < 0 ) {  /* the ol' one-two */
         sock = socket( AF_INET, SOCK_STREAM, 0 );
@@ -934,20 +935,28 @@ try_twice_to_create_socket(void) {
                  errno );
         return USER_SOCK_OPEN_ERR - errno;
     }
+
+    if(localPort > 0){
+        memset(&localAddr, 0, sizeof(struct sockaddr_in));
+        localAddr.sin_family = AF_INET;
+        localAddr.sin_port = htons(localPort);
+        bind(sock, (struct sockaddr *)&localAddr, sizeof(struct sockaddr));    
+    }
+
     return sock;
 }
 
 int
 connectToRhostWithRaddr( struct sockaddr_in *remoteAddr, int windowSize,
-                         int timeoutFlag ) {
+                         int timeoutFlag, int localPort) {
     int sock = -1;
     if (timeoutFlag > 0) {
-        sock = connectToRhostWithTout( ( struct sockaddr * ) remoteAddr );
+        sock = connectToRhostWithTout( ( struct sockaddr * ) remoteAddr, localPort);
         if (sock < 0) {
             return sock;
         }
     } else {
-        sock = try_twice_to_create_socket();
+        sock = try_twice_to_create_socket(localPort);
         if (sock < 0) {
             return sock;
         }
@@ -980,12 +989,12 @@ connectToRhostWithRaddr( struct sockaddr_in *remoteAddr, int windowSize,
 
 #ifdef _WIN32
 int
-connectToRhostWithTout(struct sockaddr *sin ) {
+connectToRhostWithTout(struct sockaddr *sin, int localPort) {
     // A Windows console app has very limited timeout functionality.
     // An pseudo timeout is implemented.
     int timeoutCnt = 0;
     int status = 0;
-    const int sock = try_twice_to_create_socket();
+    const int sock = try_twice_to_create_socket(localPort);
     if (sock < 0) {
         return sock;
     }
@@ -1007,8 +1016,8 @@ connectToRhostWithTout(struct sockaddr *sin ) {
 }
 #else
 int
-create_nonblocking_socket(void) {
-    const int sock = try_twice_to_create_socket();
+create_nonblocking_socket(int localPort) {
+    const int sock = try_twice_to_create_socket(localPort);
     if (sock < 0) {
         return sock;
     }
@@ -1030,12 +1039,12 @@ create_nonblocking_socket(void) {
 }
 
 int
-connectToRhostWithTout(struct sockaddr *sin ) {
+connectToRhostWithTout(struct sockaddr *sin, int localPort) {
     int timeoutCnt = 0;
     int status = 0;
     int sock = -1;
     while ( timeoutCnt < MAX_CONN_RETRY_CNT ) {
-        sock = create_nonblocking_socket();
+        sock = create_nonblocking_socket(localPort);
         if (sock < 0) {
             return sock;
         }

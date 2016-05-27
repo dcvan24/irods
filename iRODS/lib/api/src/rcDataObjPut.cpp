@@ -97,7 +97,7 @@
  **/
 
 int
-rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
+rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath, int localPort) {
     int status;
     portalOprOut_t *portalOprOut = NULL;
     bytesBuf_t dataObjInpBBuf;
@@ -221,7 +221,7 @@ rcDataObjPut( rcComm_t *conn, dataObjInp_t *dataObjInp, char *locFilePath ) {
 
         conn->transStat.numThreads = portalOprOut->numThreads;
         status = putFileToPortal( conn, portalOprOut, locFilePath,
-                                  dataObjInp->objPath, dataObjInp->dataSize );
+                                  dataObjInp->objPath, dataObjInp->dataSize, localPort);
     }
 
     /* just send a complete msg */

@@ -271,7 +271,7 @@ putFileUtil( rcComm_t *conn, char *srcPath, char *targPath, rodsLong_t srcSize,
     }
     rstrcpy( dataObjOprInp->objPath, targPath, MAX_NAME_LEN );
     dataObjOprInp->dataSize = srcSize;
-    status = rcDataObjPut( conn, dataObjOprInp, srcPath );
+    status = rcDataObjPut( conn, dataObjOprInp, srcPath, rodsArgs->localPortValue);
 
     if ( status >= 0 ) {
         if ( rodsArgs->verbose == True ) {

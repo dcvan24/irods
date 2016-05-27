@@ -42,10 +42,10 @@ fillRcPortalTransferInp( rcComm_t *conn, rcPortalTransferInp_t *myInput,
                          int destFd, int srcFd, int threadNum );
 int
 putFileToPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
-                 char *locFilePath, char *objPath, rodsLong_t dataSize );
+                 char *locFilePath, char *objPath, rodsLong_t dataSize, int localPort);
 int
 getFileFromPortal( rcComm_t *conn, portalOprOut_t *portalOprOut,
-                   char *locFilePath, char *objPath, rodsLong_t dataSize );
+                   char *locFilePath, char *objPath, rodsLong_t dataSize, int localPort);
 void
 rcPartialDataPut( rcPortalTransferInp_t *myInput );
 void
